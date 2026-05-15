@@ -1,0 +1,21 @@
+# Build
+build/
+DerivedData/
+
+# Xcode user state
+xcuserdata/
+*.xcuserstate
+*.xcuserdatad/
+
+# Swift Package Manager
+.swiftpm/
+.build/
+Package.resolved
+
+# macOS
+.DS_Store
+
+# Optional: dependency tooling
+Pods/
+Carthage/Build/A
+
