@@ -14,14 +14,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Show available Xcode versions
-        run: ls /Applications | grep Xcode
-
-      - name: Select Xcode 16
-        run: sudo xcode-select -switch /Applications/Xcode_16.app
-
-      - name: Show Xcode version
-        run: xcodebuild -version
+      - name: Select latest installed Xcode
+        run: |
+          latest=$(ls -d /Applications/Xcode_*.app 2>/dev/null \
+            | sort -V \
+            | tail -n 1)
+          if [ -z "$latest" ]; then
+            latest=/Applications/Xcode.app
+          fi
+          echo "Using $latest"
+          sudo xcode-select -switch "$latest"
+          xcodebuild -version
 
       - name: List available simulators
         run: xcrun simctl list devices available
