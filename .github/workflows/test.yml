@@ -23,13 +23,16 @@ jobs:
       - name: Show Xcode version
         run: xcodebuild -version
 
+      - name: List available simulators
+        run: xcrun simctl list devices available
+
       - name: Build and run tests
         run: |
           set -o pipefail
           xcodebuild test \
             -project FatigueTracker.xcodeproj \
             -scheme FatigueTracker \
-            -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest' \
+            -destination 'platform=iOS Simulator,OS=latest,name=iPhone 16' \
             -resultBundlePath TestResults.xcresult \
             CODE_SIGNING_ALLOWED=NO
 
