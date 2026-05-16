@@ -16,6 +16,7 @@ struct EntryFormView: View {
     @State private var severity: Int = 4
     @State private var activity: String = ""
     @State private var scheduledAt: Date = Date()
+    @State private var exertionType: ExertionType = .physical
     @State private var loadedEntry: FatigueEntry?
 
     /// Recent distinct activity strings for the suggestion strip.
@@ -30,6 +31,7 @@ struct EntryFormView: View {
                 dateSection
                 anchorSection
                 severitySection
+                exertionSection
                 activitySection
             }
             .navigationTitle(title)
@@ -117,6 +119,18 @@ struct EntryFormView: View {
         }
     }
 
+    private var exertionSection: some View {
+        Section("Type of exertion") {
+            Picker("Exertion", selection: $exertionType) {
+                ForEach(ExertionType.allCases, id: \.self) { type in
+                    Label(type.label, systemImage: type.symbolName).tag(type)
+                }
+            }
+            .pickerStyle(.segmented)
+            .labelsHidden()
+        }
+    }
+
     private var activitySection: some View {
         Section("What were you doing?") {
             TextField("e.g. walked to kitchen, read for 20 min",
@@ -188,12 +202,14 @@ struct EntryFormView: View {
 
     private func loadInitialState() {
         let defaultSeverity = recentEntries.first?.severity ?? 4
+        let defaultExertion = recentEntries.first?.exertionType ?? .physical
 
         switch mode {
         case .manual:
             severity = defaultSeverity
             activity = ""
             scheduledAt = Date()
+            exertionType = defaultExertion
 
         case .editing(let promptID):
             let descriptor = FetchDescriptor<FatigueEntry>(
@@ -204,6 +220,7 @@ struct EntryFormView: View {
                 severity = entry.severity ?? defaultSeverity
                 activity = entry.activity
                 scheduledAt = entry.scheduledAt
+                exertionType = entry.exertionType ?? defaultExertion
             }
         }
     }
@@ -219,7 +236,8 @@ struct EntryFormView: View {
                 respondedAt: now,
                 severity: severity,
                 activity: activity,
-                status: .manual
+                status: .manual,
+                exertionType: exertionType
             )
             modelContext.insert(entry)
 
@@ -228,6 +246,7 @@ struct EntryFormView: View {
                 existing.severity = severity
                 existing.activity = activity
                 existing.scheduledAt = scheduledAt
+                existing.exertionType = exertionType
             }
         }
 

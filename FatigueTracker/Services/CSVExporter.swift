@@ -2,16 +2,18 @@ import Foundation
 
 enum CSVExporter {
     /// Produce CSV with columns: scheduled_at, responded_at, severity, severity_label,
-    /// status, activity.
+    /// exertion_type, status, activity.
     /// - `severity` is the integer 1–7 (empty for missed/pending).
     /// - `severity_label` is the zone keyword (functioning / pushing / stopped),
     ///   derived from the integer at export time. Empty for missed/pending.
+    /// - `exertion_type` is physical / cognitive. Empty for legacy entries logged
+    ///   before this field existed.
     /// - Dates are ISO 8601. Line endings are CRLF for maximum compatibility (Excel etc).
     static func makeCSV(entries: [FatigueEntry]) -> String {
         let formatter = ISO8601DateFormatter()
         formatter.formatOptions = [.withInternetDateTime]
 
-        var lines = ["scheduled_at,responded_at,severity,severity_label,status,activity"]
+        var lines = ["scheduled_at,responded_at,severity,severity_label,exertion_type,status,activity"]
 
         let sorted = entries.sorted { $0.scheduledAt < $1.scheduledAt }
 
@@ -20,10 +22,11 @@ enum CSVExporter {
             let respondedAt = entry.respondedAt.map { formatter.string(from: $0) } ?? ""
             let severity = entry.severity.map(String.init) ?? ""
             let severityLabel = entry.severity.map { SeverityZone.from(severity: $0).csvLabel } ?? ""
+            let exertion = entry.exertionType?.csvLabel ?? ""
             let status = entry.status.rawValue
             let activity = escapeCSV(entry.activity)
 
-            lines.append("\(scheduledAt),\(respondedAt),\(severity),\(severityLabel),\(status),\(activity)")
+            lines.append("\(scheduledAt),\(respondedAt),\(severity),\(severityLabel),\(exertion),\(status),\(activity)")
         }
         
         return lines.joined(separator: "\r\n") + "\r\n"
