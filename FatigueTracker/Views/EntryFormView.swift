@@ -15,6 +15,7 @@ struct EntryFormView: View {
 
     @State private var severity: Int = 4
     @State private var activity: String = ""
+    @State private var scheduledAt: Date = Date()
     @State private var loadedEntry: FatigueEntry?
 
     /// Recent distinct activity strings for the suggestion strip.
@@ -26,6 +27,7 @@ struct EntryFormView: View {
     var body: some View {
         NavigationStack {
             Form {
+                dateSection
                 anchorSection
                 severitySection
                 activitySection
@@ -47,6 +49,18 @@ struct EntryFormView: View {
     }
 
     // MARK: - Sections
+
+    private var dateSection: some View {
+        Section("When did this happen?") {
+            DatePicker(
+                "When",
+                selection: $scheduledAt,
+                in: ...Date(),
+                displayedComponents: [.date, .hourAndMinute]
+            )
+            .labelsHidden()
+        }
+    }
 
     /// Shows the most recent entry as an anchor for the rating.
     /// Skips if no prior anchor exists or if the previous entry is the one being edited.
@@ -143,9 +157,10 @@ struct EntryFormView: View {
         }
     }
 
-    /// The most recent entry that isn't the one being edited.
+    /// The most recent entry strictly before `scheduledAt`, skipping the one being edited.
     private var anchorEntry: FatigueEntry? {
         recentEntries.first { entry in
+            guard entry.scheduledAt < scheduledAt else { return false }
             if case .editing(let editingID) = mode {
                 return entry.promptID != editingID
             }
@@ -178,6 +193,7 @@ struct EntryFormView: View {
         case .manual:
             severity = defaultSeverity
             activity = ""
+            scheduledAt = Date()
 
         case .editing(let promptID):
             let descriptor = FetchDescriptor<FatigueEntry>(
@@ -187,6 +203,7 @@ struct EntryFormView: View {
                 loadedEntry = entry
                 severity = entry.severity ?? defaultSeverity
                 activity = entry.activity
+                scheduledAt = entry.scheduledAt
             }
         }
     }
@@ -198,7 +215,7 @@ struct EntryFormView: View {
         case .manual:
             let entry = FatigueEntry(
                 promptID: UUID().uuidString,
-                scheduledAt: now,
+                scheduledAt: scheduledAt,
                 respondedAt: now,
                 severity: severity,
                 activity: activity,
@@ -210,6 +227,7 @@ struct EntryFormView: View {
             if let existing = loadedEntry {
                 existing.severity = severity
                 existing.activity = activity
+                existing.scheduledAt = scheduledAt
             }
         }
 
