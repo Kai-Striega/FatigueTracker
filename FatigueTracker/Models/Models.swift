@@ -25,10 +25,18 @@ final class FatigueEntry {
     var activity: String
     /// Current lifecycle status, stored as raw string for SwiftData compatibility
     var statusRaw: String
+    /// Type of exertion (physical vs cognitive), stored as raw string.
+    /// Optional so legacy entries created before this field continue to load.
+    var exertionTypeRaw: String?
 
     var status: EntryStatus {
         get { EntryStatus(rawValue: statusRaw) ?? .manual }
         set { statusRaw = newValue.rawValue }
+    }
+
+    var exertionType: ExertionType? {
+        get { exertionTypeRaw.flatMap(ExertionType.init(rawValue:)) }
+        set { exertionTypeRaw = newValue?.rawValue }
     }
 
     init(promptID: String,
@@ -36,12 +44,14 @@ final class FatigueEntry {
          respondedAt: Date? = nil,
          severity: Int? = nil,
          activity: String = "",
-         status: EntryStatus = .manual) {
+         status: EntryStatus = .manual,
+         exertionType: ExertionType? = nil) {
         self.promptID = promptID
         self.scheduledAt = scheduledAt
         self.respondedAt = respondedAt
         self.severity = severity
         self.activity = activity
         self.statusRaw = status.rawValue
+        self.exertionTypeRaw = exertionType?.rawValue
     }
 }

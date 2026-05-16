@@ -121,6 +121,12 @@ struct EntryRow: View {
                             .foregroundStyle(.secondary)
                             .accessibilityLabel("Logged retroactively")
                     }
+                    if let exertion = entry.exertionType {
+                        Image(systemName: exertion.symbolName)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .accessibilityLabel(exertion.label)
+                    }
                 }
 
                 if let s = entry.severity {
