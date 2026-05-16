@@ -9,7 +9,7 @@ struct FatigueTrackerApp: App {
     
     let container: ModelContainer = {
         do {
-            return try ModelContainer(for: FatigueEntry.self, AppSettings.self, Tag.self)
+            return try ModelContainer(for: FatigueEntry.self, AppSettings.self)
         } catch {
             fatalError("Failed to create ModelContainer: \(error)")
         }
