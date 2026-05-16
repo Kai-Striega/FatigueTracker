@@ -101,14 +101,27 @@ private struct EditingID: Identifiable {
 struct EntryRow: View {
     let entry: FatigueEntry
 
+    private var wasRetroactive: Bool {
+        guard let responded = entry.respondedAt else { return false }
+        return responded.timeIntervalSince(entry.scheduledAt) > 300
+    }
+
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
             SeverityBadge(severity: entry.severity)
 
             VStack(alignment: .leading, spacing: 4) {
-                Text(entry.scheduledAt.formatted(date: .abbreviated, time: .shortened))
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                HStack(spacing: 4) {
+                    Text(entry.scheduledAt.formatted(date: .abbreviated, time: .shortened))
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                    if wasRetroactive {
+                        Image(systemName: "clock.arrow.circlepath")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .accessibilityLabel("Logged retroactively")
+                    }
+                }
 
                 if let s = entry.severity {
                     Text(SeverityZone.from(severity: s).fullLabel)
