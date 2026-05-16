@@ -1,6 +1,5 @@
 import SwiftUI
 import SwiftData
-import UniformTypeIdentifiers
 
 struct HistoryView: View {
     @Environment(\.modelContext) private var modelContext
@@ -9,8 +8,6 @@ struct HistoryView: View {
         order: .reverse
     ) private var entries: [FatigueEntry]
 
-    @State private var showingExport = false
-    @State private var exportURL: URL?
     @State private var showingManualEntry = false
     @State private var editingPromptID: String?
 
@@ -47,17 +44,13 @@ struct HistoryView: View {
                     }
                 }
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        prepareExport()
-                    } label: {
+                    ShareLink(
+                        item: FatigueLogCSV(entries: entries),
+                        preview: SharePreview("Fatigue Log")
+                    ) {
                         Label("Export CSV", systemImage: "square.and.arrow.up")
                     }
                     .disabled(entries.isEmpty)
-                }
-            }
-            .sheet(isPresented: $showingExport) {
-                if let url = exportURL {
-                    ShareSheet(items: [url])
                 }
             }
             .sheet(isPresented: $showingManualEntry) {
@@ -79,18 +72,6 @@ struct HistoryView: View {
         try? modelContext.save()
     }
 
-    private func prepareExport() {
-        let csv = CSVExporter.makeCSV(entries: entries)
-        let filename = "fatigue-log-\(Date().formatted(.iso8601.year().month().day())).csv"
-        let url = FileManager.default.temporaryDirectory.appendingPathComponent(filename)
-        do {
-            try csv.write(to: url, atomically: true, encoding: .utf8)
-            exportURL = url
-            showingExport = true
-        } catch {
-            print("Failed to write CSV: \(error)")
-        }
-    }
 }
 
 private struct EditingID: Identifiable {
@@ -176,12 +157,3 @@ struct SeverityBadge: View {
     }
 }
 
-struct ShareSheet: UIViewControllerRepresentable {
-    let items: [Any]
-
-    func makeUIViewController(context: Context) -> UIActivityViewController {
-        UIActivityViewController(activityItems: items, applicationActivities: nil)
-    }
-
-    func updateUIViewController(_ controller: UIActivityViewController, context: Context) {}
-}
