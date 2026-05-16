@@ -29,9 +29,11 @@ struct HistoryView: View {
                                 EntryRow(entry: entry)
                             }
                             .buttonStyle(.plain)
+                            .accessibilityIdentifier("entry-row")
                         }
                         .onDelete(perform: deleteEntries)
                     }
+                    .accessibilityIdentifier("entry-list")
                 }
             }
             .navigationTitle("Fatigue Log")
@@ -42,6 +44,7 @@ struct HistoryView: View {
                     } label: {
                         Label("Quick Log", systemImage: "plus.circle.fill")
                     }
+                    .accessibilityIdentifier("quick-log-button")
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     ShareLink(
@@ -51,6 +54,7 @@ struct HistoryView: View {
                         Label("Export CSV", systemImage: "square.and.arrow.up")
                     }
                     .disabled(entries.isEmpty)
+                    .accessibilityIdentifier("export-csv-button")
                 }
             }
             .sheet(isPresented: $showingManualEntry) {

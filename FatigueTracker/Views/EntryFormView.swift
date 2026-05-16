@@ -39,9 +39,11 @@ struct EntryFormView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
+                        .accessibilityIdentifier("form-cancel-button")
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") { save() }
+                        .accessibilityIdentifier("form-save-button")
                 }
             }
             .onAppear {
@@ -112,6 +114,7 @@ struct EntryFormView: View {
                     step: 1
                 )
                 .tint(SeverityZone.from(severity: severity).color)
+                .accessibilityIdentifier("severity-slider")
 
                 ZoneKeywordStrip(currentZone: SeverityZone.from(severity: severity))
             }
@@ -128,6 +131,7 @@ struct EntryFormView: View {
             }
             .pickerStyle(.segmented)
             .labelsHidden()
+            .accessibilityIdentifier("exertion-picker")
         }
     }
 
@@ -136,6 +140,7 @@ struct EntryFormView: View {
             TextField("e.g. walked to kitchen, read for 20 min",
                        text: $activity, axis: .vertical)
                 .lineLimit(3...6)
+                .accessibilityIdentifier("activity-field")
 
             if !recentActivitySuggestions.isEmpty {
                 ScrollView(.horizontal, showsIndicators: false) {
