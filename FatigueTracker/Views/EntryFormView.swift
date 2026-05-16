@@ -17,12 +17,8 @@ struct EntryFormView: View {
     
     @State private var severity: Int = 4
     @State private var activity: String = ""
-    @State private var selectedCategories: Set<String> = []
     @State private var loadedEntry: FatigueEntry?
-    
-    /// All available tags, sorted. Re-fetched on appear.
-    @Query(sort: \Tag.sortOrder) private var allTags: [Tag]
-    
+
     /// Recent distinct activity strings for the suggestion strip.
     @Query(
         filter: #Predicate<FatigueEntry> {
@@ -38,8 +34,7 @@ struct EntryFormView: View {
                 anchorSection
                 severitySection
                 activitySection
-                categoriesSection
-                
+
                 if case .respondingToPrompt(let prompt) = mode {
                     Section {
                         Text("Prompt scheduled at \(prompt.scheduledAt.formatted(date: .omitted, time: .shortened))")
@@ -59,7 +54,6 @@ struct EntryFormView: View {
                 }
             }
             .onAppear {
-                seedDefaultTagsIfNeeded()
                 loadInitialState()
             }
         }
@@ -157,30 +151,6 @@ struct EntryFormView: View {
         }
     }
     
-    private var categoriesSection: some View {
-        Section {
-            FlowLayout(spacing: 8) {
-                ForEach(allTags) { tag in
-                    CategoryChip(
-                        name: tag.name,
-                        isSelected: selectedCategories.contains(tag.name)
-                    ) {
-                        toggleCategory(tag.name)
-                    }
-                }
-                CategoryChip(name: "+ Add", isSelected: false, isAddButton: true) {
-                    promptForNewTag()
-                }
-            }
-            .padding(.vertical, 4)
-        } header: {
-            Text("Categories (optional)")
-        } footer: {
-            Text("Tap to tag this entry. Tags help group activities for analysis later.")
-                .font(.caption)
-        }
-    }
-    
     // MARK: - Computed
     
     private var title: String {
@@ -218,56 +188,7 @@ struct EntryFormView: View {
     }
     
     // MARK: - Actions
-    
-    private func toggleCategory(_ name: String) {
-        if selectedCategories.contains(name) {
-            selectedCategories.remove(name)
-        } else {
-            selectedCategories.insert(name)
-        }
-    }
-    
-    /// Use a UIAlertController for the tag-name prompt because SwiftUI's
-    /// alert text-field support is awkward and we want this to feel snappy.
-    private func promptForNewTag() {
-        let alert = UIAlertController(title: "New category",
-                                       message: "Name a tag (e.g. 'household', 'work')",
-                                       preferredStyle: .alert)
-        alert.addTextField { field in
-            field.placeholder = "tag name"
-            field.autocapitalizationType = .none
-        }
-        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
-        alert.addAction(UIAlertAction(title: "Add", style: .default) { _ in
-            guard let raw = alert.textFields?.first?.text else { return }
-            let name = raw.trimmingCharacters(in: .whitespaces).lowercased()
-            guard !name.isEmpty else { return }
-            // Avoid duplicate insertions
-            if !allTags.contains(where: { $0.name == name }) {
-                let nextOrder = (allTags.map(\.sortOrder).max() ?? 0) + 1
-                modelContext.insert(Tag(name: name, sortOrder: nextOrder))
-                try? modelContext.save()
-            }
-            selectedCategories.insert(name)
-        })
-        
-        // Present from the active key window
-        if let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-           let root = scene.windows.first(where: \.isKeyWindow)?.rootViewController {
-            var top = root
-            while let presented = top.presentedViewController { top = presented }
-            top.present(alert, animated: true)
-        }
-    }
-    
-    private func seedDefaultTagsIfNeeded() {
-        guard allTags.isEmpty else { return }
-        for (index, name) in Tag.defaults.enumerated() {
-            modelContext.insert(Tag(name: name, sortOrder: index))
-        }
-        try? modelContext.save()
-    }
-    
+
     private func loadInitialState() {
         // Default starting severity: last responded/manual entry, or 4 (middle of slider) if none.
         let defaultSeverity = recentEntries.first?.severity ?? 4
@@ -283,14 +204,12 @@ struct EntryFormView: View {
             if let existing = loadedEntry, existing.status == .responded {
                 severity = existing.severity ?? severity
                 activity = existing.activity
-                selectedCategories = Set(existing.categories)
             }
-            
+
         case .manual:
             severity = defaultSeverity
             activity = ""
-            selectedCategories = []
-            
+
         case .editing(let promptID):
             let descriptor = FetchDescriptor<FatigueEntry>(
                 predicate: #Predicate { $0.promptID == promptID }
@@ -299,21 +218,18 @@ struct EntryFormView: View {
                 loadedEntry = entry
                 severity = entry.severity ?? defaultSeverity
                 activity = entry.activity
-                selectedCategories = Set(entry.categories)
             }
         }
     }
-    
+
     private func save() {
         let now = Date()
-        let categoriesList = Array(selectedCategories).sorted()
-        
+
         switch mode {
         case .respondingToPrompt:
             if let existing = loadedEntry {
                 existing.severity = severity
                 existing.activity = activity
-                existing.categories = categoriesList
                 existing.respondedAt = now
                 existing.status = .responded
             } else if case .respondingToPrompt(let prompt) = mode {
@@ -323,12 +239,11 @@ struct EntryFormView: View {
                     respondedAt: now,
                     severity: severity,
                     activity: activity,
-                    categories: categoriesList,
                     status: .responded
                 )
                 modelContext.insert(entry)
             }
-            
+
         case .manual:
             let entry = FatigueEntry(
                 promptID: UUID().uuidString,
@@ -336,16 +251,14 @@ struct EntryFormView: View {
                 respondedAt: now,
                 severity: severity,
                 activity: activity,
-                categories: categoriesList,
                 status: .manual
             )
             modelContext.insert(entry)
-            
+
         case .editing:
             if let existing = loadedEntry {
                 existing.severity = severity
                 existing.activity = activity
-                existing.categories = categoriesList
                 if existing.status == .missed {
                     existing.status = .responded
                     existing.respondedAt = now
@@ -402,87 +315,3 @@ struct ZoneKeywordStrip: View {
     }
 }
 
-struct CategoryChip: View {
-    let name: String
-    let isSelected: Bool
-    var isAddButton: Bool = false
-    let action: () -> Void
-    
-    var body: some View {
-        Button(action: action) {
-            Text(name)
-                .font(.subheadline)
-                .padding(.horizontal, 12)
-                .padding(.vertical, 6)
-                .background(background, in: Capsule())
-                .foregroundStyle(foreground)
-                .overlay(
-                    Capsule().stroke(strokeColor, lineWidth: 1)
-                )
-        }
-        .buttonStyle(.plain)
-    }
-    
-    private var background: Color {
-        if isAddButton { return Color.clear }
-        return isSelected ? Color.accentColor : Color.secondary.opacity(0.12)
-    }
-    
-    private var foreground: Color {
-        if isAddButton { return Color.accentColor }
-        return isSelected ? Color.white : Color.primary
-    }
-    
-    private var strokeColor: Color {
-        if isAddButton { return Color.accentColor.opacity(0.5) }
-        return Color.clear
-    }
-}
-
-/// Minimal flow layout (wraps chips onto multiple lines).
-struct FlowLayout: Layout {
-    var spacing: CGFloat = 8
-    
-    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
-        let maxWidth = proposal.width ?? .infinity
-        var rowWidth: CGFloat = 0
-        var rowHeight: CGFloat = 0
-        var totalHeight: CGFloat = 0
-        var totalWidth: CGFloat = 0
-        
-        for subview in subviews {
-            let size = subview.sizeThatFits(.unspecified)
-            if rowWidth + size.width > maxWidth {
-                totalWidth = max(totalWidth, rowWidth - spacing)
-                totalHeight += rowHeight + spacing
-                rowWidth = size.width + spacing
-                rowHeight = size.height
-            } else {
-                rowWidth += size.width + spacing
-                rowHeight = max(rowHeight, size.height)
-            }
-        }
-        totalWidth = max(totalWidth, rowWidth - spacing)
-        totalHeight += rowHeight
-        return CGSize(width: totalWidth, height: totalHeight)
-    }
-    
-    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize,
-                       subviews: Subviews, cache: inout ()) {
-        var x = bounds.minX
-        var y = bounds.minY
-        var rowHeight: CGFloat = 0
-        
-        for subview in subviews {
-            let size = subview.sizeThatFits(.unspecified)
-            if x + size.width > bounds.maxX {
-                x = bounds.minX
-                y += rowHeight + spacing
-                rowHeight = 0
-            }
-            subview.place(at: CGPoint(x: x, y: y), proposal: ProposedViewSize(size))
-            x += size.width + spacing
-            rowHeight = max(rowHeight, size.height)
-        }
-    }
-}

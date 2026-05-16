@@ -142,19 +142,6 @@ struct EntryRow: View {
                         Text(entry.activity)
                             .font(.body)
                     }
-                    if !entry.categories.isEmpty {
-                        HStack(spacing: 4) {
-                            ForEach(entry.categories, id: \.self) { cat in
-                                Text(cat)
-                                    .font(.caption2)
-                                    .padding(.horizontal, 6)
-                                    .padding(.vertical, 2)
-                                    .background(Color.secondary.opacity(0.15),
-                                                in: Capsule())
-                                    .foregroundStyle(.secondary)
-                            }
-                        }
-                    }
                 }
             }
             Spacer(minLength: 0)
