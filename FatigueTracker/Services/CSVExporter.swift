@@ -35,8 +35,8 @@ enum CSVExporter {
     private static func escapeCSV(_ field: String) -> String {
         let needsQuoting = field.contains(",")
             || field.contains("\"")
-            || field.contains("\n")
-            || field.contains("\r")
+            || field.unicodeScalars.contains("\n")
+            || field.unicodeScalars.contains("\r")
         
         if needsQuoting {
             let normalised = field

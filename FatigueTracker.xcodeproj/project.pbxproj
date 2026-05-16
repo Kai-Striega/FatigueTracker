@@ -6,14 +6,63 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXContainerItemProxy section */
+		2AD8E2512FB855BA00F4D5FE /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 2AC93A852FB7EDB50014E229 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 2AC93A8C2FB7EDB50014E229;
+			remoteInfo = FatigueTracker;
+		};
+		2AD8E2602FB855F500F4D5FE /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 2AC93A852FB7EDB50014E229 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 2AC93A8C2FB7EDB50014E229;
+			remoteInfo = FatigueTracker;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
 		2AC93A8D2FB7EDB50014E229 /* FatigueTracker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FatigueTracker.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		2AD8E24D2FB855BA00F4D5FE /* FatigueTrackerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FatigueTrackerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		2AD8E25A2FB855F500F4D5FE /* FatigueTrackerUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FatigueTrackerUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		2AD8E29E2FB858F400F4D5FE /* Exceptions for "Tests" folder in "FatigueTrackerUITests" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				FatigueTrackerTests/CSVExporterTests.swift,
+				FatigueTrackerTests/ExertionTypeTests.swift,
+				FatigueTrackerTests/FatigueEntryModelTests.swift,
+				FatigueTrackerTests/SeverityZoneTests.swift,
+				FatigueTrackerTests/TestHelpers.swift,
+			);
+			target = 2AD8E2592FB855F500F4D5FE /* FatigueTrackerUITests */;
+		};
+		2AD8E29F2FB8590F00F4D5FE /* Exceptions for "Tests" folder in "FatigueTrackerTests" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				FatigueTrackerUITests/FatigueTrackerUITests.swift,
+			);
+			target = 2AD8E24C2FB855BA00F4D5FE /* FatigueTrackerTests */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		2AC93A8F2FB7EDB50014E229 /* FatigueTracker */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = FatigueTracker;
+			sourceTree = "<group>";
+		};
+		2AD8E2912FB857C900F4D5FE /* Tests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				2AD8E29F2FB8590F00F4D5FE /* Exceptions for "Tests" folder in "FatigueTrackerTests" target */,
+				2AD8E29E2FB858F400F4D5FE /* Exceptions for "Tests" folder in "FatigueTrackerUITests" target */,
+			);
+			path = Tests;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -26,12 +75,27 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		2AD8E24A2FB855BA00F4D5FE /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2AD8E2572FB855F500F4D5FE /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
 		2AC93A842FB7EDB50014E229 = {
 			isa = PBXGroup;
 			children = (
+				2AD8E2912FB857C900F4D5FE /* Tests */,
 				2AC93A8F2FB7EDB50014E229 /* FatigueTracker */,
 				2AC93A8E2FB7EDB50014E229 /* Products */,
 			);
@@ -41,6 +105,8 @@
 			isa = PBXGroup;
 			children = (
 				2AC93A8D2FB7EDB50014E229 /* FatigueTracker.app */,
+				2AD8E24D2FB855BA00F4D5FE /* FatigueTrackerTests.xctest */,
+				2AD8E25A2FB855F500F4D5FE /* FatigueTrackerUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -70,6 +136,52 @@
 			productReference = 2AC93A8D2FB7EDB50014E229 /* FatigueTracker.app */;
 			productType = "com.apple.product-type.application";
 		};
+		2AD8E24C2FB855BA00F4D5FE /* FatigueTrackerTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2AD8E2532FB855BA00F4D5FE /* Build configuration list for PBXNativeTarget "FatigueTrackerTests" */;
+			buildPhases = (
+				2AD8E2492FB855BA00F4D5FE /* Sources */,
+				2AD8E24A2FB855BA00F4D5FE /* Frameworks */,
+				2AD8E24B2FB855BA00F4D5FE /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				2AD8E2522FB855BA00F4D5FE /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				2AD8E2912FB857C900F4D5FE /* Tests */,
+			);
+			name = FatigueTrackerTests;
+			packageProductDependencies = (
+			);
+			productName = FatigueTrackerTests;
+			productReference = 2AD8E24D2FB855BA00F4D5FE /* FatigueTrackerTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		2AD8E2592FB855F500F4D5FE /* FatigueTrackerUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2AD8E2622FB855F500F4D5FE /* Build configuration list for PBXNativeTarget "FatigueTrackerUITests" */;
+			buildPhases = (
+				2AD8E2562FB855F500F4D5FE /* Sources */,
+				2AD8E2572FB855F500F4D5FE /* Frameworks */,
+				2AD8E2582FB855F500F4D5FE /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				2AD8E2612FB855F500F4D5FE /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				2AD8E2912FB857C900F4D5FE /* Tests */,
+			);
+			name = FatigueTrackerUITests;
+			packageProductDependencies = (
+			);
+			productName = FatigueTrackerUITests;
+			productReference = 2AD8E25A2FB855F500F4D5FE /* FatigueTrackerUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -82,6 +194,15 @@
 				TargetAttributes = {
 					2AC93A8C2FB7EDB50014E229 = {
 						CreatedOnToolsVersion = 26.5;
+					};
+					2AD8E24C2FB855BA00F4D5FE = {
+						CreatedOnToolsVersion = 26.5;
+						LastSwiftMigration = 2650;
+						TestTargetID = 2AC93A8C2FB7EDB50014E229;
+					};
+					2AD8E2592FB855F500F4D5FE = {
+						CreatedOnToolsVersion = 26.5;
+						TestTargetID = 2AC93A8C2FB7EDB50014E229;
 					};
 				};
 			};
@@ -100,12 +221,28 @@
 			projectRoot = "";
 			targets = (
 				2AC93A8C2FB7EDB50014E229 /* FatigueTracker */,
+				2AD8E24C2FB855BA00F4D5FE /* FatigueTrackerTests */,
+				2AD8E2592FB855F500F4D5FE /* FatigueTrackerUITests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		2AC93A8B2FB7EDB50014E229 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2AD8E24B2FB855BA00F4D5FE /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2AD8E2582FB855F500F4D5FE /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -122,7 +259,34 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		2AD8E2492FB855BA00F4D5FE /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2AD8E2562FB855F500F4D5FE /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		2AD8E2522FB855BA00F4D5FE /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 2AC93A8C2FB7EDB50014E229 /* FatigueTracker */;
+			targetProxy = 2AD8E2512FB855BA00F4D5FE /* PBXContainerItemProxy */;
+		};
+		2AD8E2612FB855F500F4D5FE /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 2AC93A8C2FB7EDB50014E229 /* FatigueTracker */;
+			targetProxy = 2AD8E2602FB855F500F4D5FE /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		2AC93A982FB7EDB60014E229 /* Debug */ = {
@@ -310,6 +474,97 @@
 			};
 			name = Release;
 		};
+		2AD8E2542FB855BA00F4D5FE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 72W8ZJL49B;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = local.kai.FatigueTrackerTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_OBJC_BRIDGING_HEADER = "";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/FatigueTracker.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/FatigueTracker";
+			};
+			name = Debug;
+		};
+		2AD8E2552FB855BA00F4D5FE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 72W8ZJL49B;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = local.kai.FatigueTrackerTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_OBJC_BRIDGING_HEADER = "";
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/FatigueTracker.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/FatigueTracker";
+			};
+			name = Release;
+		};
+		2AD8E2632FB855F500F4D5FE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 72W8ZJL49B;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = local.kai.FatigueTrackerUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = FatigueTracker;
+			};
+			name = Debug;
+		};
+		2AD8E2642FB855F500F4D5FE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 72W8ZJL49B;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = local.kai.FatigueTrackerUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = FatigueTracker;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -327,6 +582,24 @@
 			buildConfigurations = (
 				2AC93A9B2FB7EDB60014E229 /* Debug */,
 				2AC93A9C2FB7EDB60014E229 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		2AD8E2532FB855BA00F4D5FE /* Build configuration list for PBXNativeTarget "FatigueTrackerTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2AD8E2542FB855BA00F4D5FE /* Debug */,
+				2AD8E2552FB855BA00F4D5FE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		2AD8E2622FB855F500F4D5FE /* Build configuration list for PBXNativeTarget "FatigueTrackerUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2AD8E2632FB855F500F4D5FE /* Debug */,
+				2AD8E2642FB855F500F4D5FE /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

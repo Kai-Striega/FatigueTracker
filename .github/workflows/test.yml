@@ -1,0 +1,41 @@
+name: Test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    name: Build and test
+    runs-on: macos-15
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Show available Xcode versions
+        run: ls /Applications | grep Xcode
+
+      - name: Select Xcode 16
+        run: sudo xcode-select -switch /Applications/Xcode_16.app
+
+      - name: Show Xcode version
+        run: xcodebuild -version
+
+      - name: Build and run tests
+        run: |
+          set -o pipefail
+          xcodebuild test \
+            -project FatigueTracker.xcodeproj \
+            -scheme FatigueTracker \
+            -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest' \
+            -resultBundlePath TestResults.xcresult \
+            CODE_SIGNING_ALLOWED=NO
+
+      - name: Upload test results on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: TestResults.xcresult
+          path: TestResults.xcresult
