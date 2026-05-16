@@ -3,7 +3,6 @@ import SwiftData
 
 /// What the form is editing. Drives lookup behavior and save semantics.
 enum EntryFormMode: Equatable {
-    case respondingToPrompt(PendingPrompt)
     case manual
     case editing(promptID: String)
 }
@@ -11,43 +10,31 @@ enum EntryFormMode: Equatable {
 struct EntryFormView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
-    @EnvironmentObject private var coordinator: NotificationCoordinator
-    
+
     let mode: EntryFormMode
-    
+
     @State private var severity: Int = 4
     @State private var activity: String = ""
     @State private var loadedEntry: FatigueEntry?
 
     /// Recent distinct activity strings for the suggestion strip.
     @Query(
-        filter: #Predicate<FatigueEntry> {
-            $0.statusRaw == "responded" || $0.statusRaw == "manual"
-        },
         sort: \FatigueEntry.scheduledAt,
         order: .reverse
     ) private var recentEntries: [FatigueEntry]
-    
+
     var body: some View {
         NavigationStack {
             Form {
                 anchorSection
                 severitySection
                 activitySection
-
-                if case .respondingToPrompt(let prompt) = mode {
-                    Section {
-                        Text("Prompt scheduled at \(prompt.scheduledAt.formatted(date: .omitted, time: .shortened))")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                }
             }
             .navigationTitle(title)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { cancel() }
+                    Button("Cancel") { dismiss() }
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") { save() }
@@ -58,17 +45,17 @@ struct EntryFormView: View {
             }
         }
     }
-    
+
     // MARK: - Sections
-    
-    /// Shows the most recent responded/manual entry as an anchor for the rating.
+
+    /// Shows the most recent entry as an anchor for the rating.
     /// Skips if no prior anchor exists or if the previous entry is the one being edited.
     @ViewBuilder
     private var anchorSection: some View {
         if let anchor = anchorEntry {
             Section {
                 HStack(alignment: .top, spacing: 12) {
-                    SeverityBadge(severity: anchor.severity, status: anchor.status)
+                    SeverityBadge(severity: anchor.severity)
                         .scaleEffect(0.85)
                     VStack(alignment: .leading, spacing: 2) {
                         Text("Last entry — \(relativeTimeString(from: anchor.scheduledAt))")
@@ -86,11 +73,10 @@ struct EntryFormView: View {
             }
         }
     }
-    
+
     private var severitySection: some View {
         Section("How are you doing?") {
             VStack(alignment: .leading, spacing: 12) {
-                // Current zone label, large and bold, with the numeric value alongside.
                 HStack(alignment: .firstTextBaseline) {
                     Text(SeverityZone.from(severity: severity).fullLabel)
                         .font(.headline)
@@ -100,8 +86,7 @@ struct EntryFormView: View {
                         .font(.headline.monospacedDigit())
                         .foregroundStyle(.secondary)
                 }
-                
-                // Slider snaps to integers 1...7.
+
                 Slider(
                     value: Binding(
                         get: { Double(severity) },
@@ -111,21 +96,19 @@ struct EntryFormView: View {
                     step: 1
                 )
                 .tint(SeverityZone.from(severity: severity).color)
-                
-                // Zone keyword strip beneath the slider.
-                // Each label occupies roughly the proportion of the slider its zone covers.
+
                 ZoneKeywordStrip(currentZone: SeverityZone.from(severity: severity))
             }
             .padding(.vertical, 4)
         }
     }
-    
+
     private var activitySection: some View {
         Section("What were you doing?") {
             TextField("e.g. walked to kitchen, read for 20 min",
                        text: $activity, axis: .vertical)
                 .lineLimit(3...6)
-            
+
             if !recentActivitySuggestions.isEmpty {
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 8) {
@@ -150,18 +133,17 @@ struct EntryFormView: View {
             }
         }
     }
-    
+
     // MARK: - Computed
-    
+
     private var title: String {
         switch mode {
-        case .respondingToPrompt: return "Log Entry"
         case .manual: return "Quick Log"
         case .editing: return "Edit Entry"
         }
     }
-    
-    /// The most recent responded/manual entry that isn't the one being edited.
+
+    /// The most recent entry that isn't the one being edited.
     private var anchorEntry: FatigueEntry? {
         recentEntries.first { entry in
             if case .editing(let editingID) = mode {
@@ -170,7 +152,7 @@ struct EntryFormView: View {
             return true
         }
     }
-    
+
     /// Up to 10 distinct recent activity strings, ordered by recency.
     private var recentActivitySuggestions: [String] {
         var seen = Set<String>()
@@ -186,26 +168,13 @@ struct EntryFormView: View {
         }
         return result
     }
-    
+
     // MARK: - Actions
 
     private func loadInitialState() {
-        // Default starting severity: last responded/manual entry, or 4 (middle of slider) if none.
         let defaultSeverity = recentEntries.first?.severity ?? 4
-        
-        switch mode {
-        case .respondingToPrompt(let prompt):
-            severity = prompt.preFilledSeverity ?? defaultSeverity
-            let id = prompt.promptID
-            let descriptor = FetchDescriptor<FatigueEntry>(
-                predicate: #Predicate { $0.promptID == id }
-            )
-            loadedEntry = (try? modelContext.fetch(descriptor))?.first
-            if let existing = loadedEntry, existing.status == .responded {
-                severity = existing.severity ?? severity
-                activity = existing.activity
-            }
 
+        switch mode {
         case .manual:
             severity = defaultSeverity
             activity = ""
@@ -226,24 +195,6 @@ struct EntryFormView: View {
         let now = Date()
 
         switch mode {
-        case .respondingToPrompt:
-            if let existing = loadedEntry {
-                existing.severity = severity
-                existing.activity = activity
-                existing.respondedAt = now
-                existing.status = .responded
-            } else if case .respondingToPrompt(let prompt) = mode {
-                let entry = FatigueEntry(
-                    promptID: prompt.promptID,
-                    scheduledAt: prompt.scheduledAt,
-                    respondedAt: now,
-                    severity: severity,
-                    activity: activity,
-                    status: .responded
-                )
-                modelContext.insert(entry)
-            }
-
         case .manual:
             let entry = FatigueEntry(
                 promptID: UUID().uuidString,
@@ -259,25 +210,15 @@ struct EntryFormView: View {
             if let existing = loadedEntry {
                 existing.severity = severity
                 existing.activity = activity
-                if existing.status == .missed {
-                    existing.status = .responded
-                    existing.respondedAt = now
-                }
             }
         }
-        
+
         try? modelContext.save()
-        coordinator.pendingPrompt = nil
         dismiss()
     }
-    
-    private func cancel() {
-        coordinator.pendingPrompt = nil
-        dismiss()
-    }
-    
+
     // MARK: - Formatting
-    
+
     private func relativeTimeString(from date: Date) -> String {
         let formatter = RelativeDateTimeFormatter()
         formatter.unitsStyle = .full
@@ -292,7 +233,7 @@ struct EntryFormView: View {
 /// Widths are proportional to the integer range each zone covers (2/3/2 of 7).
 struct ZoneKeywordStrip: View {
     let currentZone: SeverityZone
-    
+
     var body: some View {
         HStack(spacing: 4) {
             label(for: .functioning, weight: 2)
@@ -301,7 +242,7 @@ struct ZoneKeywordStrip: View {
         }
         .font(.caption2)
     }
-    
+
     @ViewBuilder
     private func label(for zone: SeverityZone, weight: CGFloat) -> some View {
         let isActive = zone == currentZone
@@ -314,4 +255,3 @@ struct ZoneKeywordStrip: View {
             .layoutPriority(weight)
     }
 }
-
