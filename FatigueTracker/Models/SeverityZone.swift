@@ -25,7 +25,7 @@ enum SeverityZone: String, CaseIterable {
         }
     }
     
-    /// Short label for the notification action button.
+    /// Short label for the keyword strip beneath the severity slider.
     var shortLabel: String {
         switch self {
         case .functioning: return "Functioning"
@@ -33,20 +33,10 @@ enum SeverityZone: String, CaseIterable {
         case .stopped:     return "Stopped"
         }
     }
-    
+
     /// Snake_case identifier for the CSV export.
     var csvLabel: String { rawValue }
-    
-    /// The value to pre-fill the slider with when this zone is tapped from a notification.
-    /// Middle of the zone so the user can adjust either direction.
-    var notificationPrefillValue: Int {
-        switch self {
-        case .functioning: return 2
-        case .pushing:     return 4
-        case .stopped:     return 6
-        }
-    }
-    
+
     /// Colorblind-safe color for this zone. Used in the severity badge and slider track.
     /// Chosen from the viridis-adjacent palette: monotonic in luminance, distinguishable
     /// under deuteranopia and protanopia.

@@ -5,16 +5,15 @@ import UniformTypeIdentifiers
 struct HistoryView: View {
     @Environment(\.modelContext) private var modelContext
     @Query(
-        filter: #Predicate<FatigueEntry> { $0.statusRaw != "pending" },
         sort: \FatigueEntry.scheduledAt,
         order: .reverse
     ) private var entries: [FatigueEntry]
-    
+
     @State private var showingExport = false
     @State private var exportURL: URL?
     @State private var showingManualEntry = false
     @State private var editingPromptID: String?
-    
+
     var body: some View {
         NavigationStack {
             Group {
@@ -22,7 +21,7 @@ struct HistoryView: View {
                     ContentUnavailableView(
                         "No entries yet",
                         systemImage: "list.bullet.clipboard",
-                        description: Text("Entries appear here once you respond to a prompt, or use Quick Log to record one now.")
+                        description: Text("Use Quick Log to record one now.")
                     )
                 } else {
                     List {
@@ -72,14 +71,14 @@ struct HistoryView: View {
             }
         }
     }
-    
+
     private func deleteEntries(at offsets: IndexSet) {
         for index in offsets {
             modelContext.delete(entries[index])
         }
         try? modelContext.save()
     }
-    
+
     private func prepareExport() {
         let csv = CSVExporter.makeCSV(entries: entries)
         let filename = "fatigue-log-\(Date().formatted(.iso8601.year().month().day())).csv"
@@ -101,47 +100,28 @@ private struct EditingID: Identifiable {
 
 struct EntryRow: View {
     let entry: FatigueEntry
-    
+
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
-            SeverityBadge(severity: entry.severity, status: entry.status)
-            
+            SeverityBadge(severity: entry.severity)
+
             VStack(alignment: .leading, spacing: 4) {
-                HStack(spacing: 6) {
-                    Text(entry.scheduledAt.formatted(date: .abbreviated, time: .shortened))
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                    if entry.status == .manual {
-                        Text("· manual")
-                            .font(.caption)
-                            .foregroundStyle(.tertiary)
-                    }
+                Text(entry.scheduledAt.formatted(date: .abbreviated, time: .shortened))
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+
+                if let s = entry.severity {
+                    Text(SeverityZone.from(severity: s).fullLabel)
+                        .font(.caption)
+                        .foregroundStyle(SeverityZone.from(severity: s).color)
                 }
-                
-                switch entry.status {
-                case .missed:
-                    Text("Missed")
-                        .font(.body)
-                        .italic()
-                        .foregroundStyle(.secondary)
-                case .pending:
-                    Text("Pending…")
+                if entry.activity.isEmpty {
+                    Text("(no activity recorded)")
                         .font(.body)
                         .foregroundStyle(.tertiary)
-                case .responded, .manual:
-                    if let s = entry.severity {
-                        Text(SeverityZone.from(severity: s).fullLabel)
-                            .font(.caption)
-                            .foregroundStyle(SeverityZone.from(severity: s).color)
-                    }
-                    if entry.activity.isEmpty {
-                        Text("(no activity recorded)")
-                            .font(.body)
-                            .foregroundStyle(.tertiary)
-                    } else {
-                        Text(entry.activity)
-                            .font(.body)
-                    }
+                } else {
+                    Text(entry.activity)
+                        .font(.body)
                 }
             }
             Spacer(minLength: 0)
@@ -152,11 +132,9 @@ struct EntryRow: View {
 }
 
 /// Colors by zone (3 colors), with the numeric 1–7 value shown as the primary signal.
-/// Per-zone coloring keeps the visual language tied to the functional meaning.
 struct SeverityBadge: View {
     let severity: Int?
-    let status: EntryStatus
-    
+
     var body: some View {
         ZStack {
             Circle()
@@ -167,15 +145,13 @@ struct SeverityBadge: View {
                 .foregroundStyle(.white)
         }
     }
-    
+
     private var label: String {
-        if status == .missed { return "–" }
         if let s = severity { return "\(s)" }
         return "?"
     }
-    
+
     private var color: Color {
-        if status == .missed { return Color(white: 0.55) }
         guard let s = severity else { return Color(white: 0.55) }
         return SeverityZone.from(severity: s).color
     }
@@ -183,10 +159,10 @@ struct SeverityBadge: View {
 
 struct ShareSheet: UIViewControllerRepresentable {
     let items: [Any]
-    
+
     func makeUIViewController(context: Context) -> UIActivityViewController {
         UIActivityViewController(activityItems: items, applicationActivities: nil)
     }
-    
+
     func updateUIViewController(_ controller: UIActivityViewController, context: Context) {}
 }
